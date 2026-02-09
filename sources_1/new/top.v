@@ -1,30 +1,12 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 02/04/2026 03:40:57 PM
-// Design Name: 
-// Module Name: top
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
 
-
-module top (
+module branch_predictor (
     input  wire        clk,
     input  wire        reset,
+
     input  wire        branch_taken,
     input  wire        branch_not_taken,
+
     output wire        branch_prediction
 );
 
@@ -32,25 +14,22 @@ module top (
     reg [31:0] taken_count;
     reg [31:0] not_taken_count;
 
-    // Counter update logic
+    // Update counters on clock edge
     always @(posedge clk) begin
         if (reset) begin
-            taken_count     <= 32'd0;
-            not_taken_count <= 32'd0;
+            taken_count      <= 32'd0;
+            not_taken_count  <= 32'd0;
         end else begin
-            if (branch_taken) begin
+            if (branch_taken)
                 taken_count <= taken_count + 1;
-            end
-            if (branch_not_taken) begin
+
+            if (branch_not_taken)
                 not_taken_count <= not_taken_count + 1;
-            end
         end
     end
 
     // Prediction logic:
-    // 1 = predict taken
-    // 0 = predict not taken
+    // Predict TAKEN if taken_count > not_taken_count
     assign branch_prediction = (taken_count > not_taken_count);
 
 endmodule
-
