@@ -28,8 +28,7 @@ module branch_predictor (
         end
     end
 
-    // Prediction logic:
-    // Predict TAKEN if taken_count > not_taken_count
+    // predict if taken_count > not_taken_count
     assign branch_prediction = (taken_count > not_taken_count);
 
 endmodule

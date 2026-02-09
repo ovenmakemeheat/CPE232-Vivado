@@ -10,7 +10,10 @@ module tb_branch_predictor;
 
     wire branch_prediction;
 
-    // Instantiate the DUT (Device Under Test)
+    // Pass / fail flag
+    reg fail_flag;
+
+    // Instantiate the DUT
     branch_predictor dut (
         .clk(clk),
         .reset(reset),
@@ -28,6 +31,7 @@ module tb_branch_predictor;
         reset = 1;
         branch_taken = 0;
         branch_not_taken = 0;
+        fail_flag = 0;
 
         // Apply reset
         #10;
@@ -46,6 +50,13 @@ module tb_branch_predictor;
             branch_taken = 0;
         end
 
+        if (branch_prediction !== 1) begin
+            $display("Test 1 FAILED | Expected=1 Got=%b", branch_prediction);
+            fail_flag = 1;
+        end else begin
+            $display("Test 1 PASSED");
+        end
+
         // -------------------------
         // Test 2: Branch Not Taken more often
         // -------------------------
@@ -57,6 +68,13 @@ module tb_branch_predictor;
             branch_taken = 0;
             @(posedge clk);
             branch_not_taken = 0;
+        end
+
+        if (branch_prediction !== 0) begin
+            $display("Test 2 FAILED | Expected=0 Got=%b", branch_prediction);
+            fail_flag = 1;
+        end else begin
+            $display("Test 2 PASSED");
         end
 
         // -------------------------
@@ -72,6 +90,13 @@ module tb_branch_predictor;
             branch_taken = 0;
         end
 
+        if (branch_prediction !== 1) begin
+            $display("Test 3 FAILED | Expected=1 Got=%b", branch_prediction);
+            fail_flag = 1;
+        end else begin
+            $display("Test 3 PASSED");
+        end
+
         // -------------------------
         // Test 4: Reset behavior
         // -------------------------
@@ -82,19 +107,30 @@ module tb_branch_predictor;
         @(posedge clk);
         reset = 0;
 
-        // Finish simulation
+        if (branch_prediction !== 0) begin
+            $display("Test 4 FAILED | Expected=0 Got=%b", branch_prediction);
+            fail_flag = 1;
+        end else begin
+            $display("Test 4 PASSED");
+        end
+
+        // -------------------------
+        // Final result
+        // -------------------------
+        if (fail_flag)
+            $display("===== FINAL RESULT: FAIL =====");
+        else
+            $display("===== FINAL RESULT: PASS =====");
+
         #20;
         $finish;
     end
 
-    // Monitor outputs
+    // Monitor signals
     initial begin
         $monitor(
             "Time=%0t | Taken=%b | NotTaken=%b | Prediction=%b",
-            $time,
-            branch_taken,
-            branch_not_taken,
-            branch_prediction
+            $time, branch_taken, branch_not_taken, branch_prediction
         );
     end
 
